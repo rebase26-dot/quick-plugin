@@ -18,6 +18,8 @@ const EFFORTS: { level: ModelEffort; icon: string }[] = [
 const CHECK = '✓'
 
 const hidden = atom({ plugin: 'quick-mode', key: 'hidden' } as const, false)
+const disabled = atom({ plugin: 'quick-mode', key: 'disabled' } as const, false)
+const DISABLED_KEY = 'disabled'
 const live = atom({ plugin: 'quick-mode', key: 'live' } as const, { effort: null }, { shape: 'live-2' })
 
 async function run($: EngineInterface, command: string, args: string) {
@@ -35,15 +37,17 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'quick-mode',
-      description: '모델·Effort 전환 줄 숨기기/보이기',
+      description: '모델·Effort 전환 줄 숨기기/보이기 (on|off: 플러그인 켜기/끄기)',
     })
+    const stored = (await $.store.get(DISABLED_KEY)) === true
+    await update($, disabled, () => stored)
     // An earlier version showed this as a pane; a pane outlives a reload.
     void $.ui.close({ id: 'quick-mode' }).catch(() => {})
     return next(e)
   })
 
   on('turn.step', async function* ($, e, next) {
-    if (e.agentId === undefined) {
+    if (e.agentId === undefined && !(await read($, disabled))) {
       await update($, live, () => ({ effort: e.effort === undefined ? null : String(e.effort) }))
       void $.ui.invalidate('ui.render')
     }
@@ -52,6 +56,7 @@ export const register: Register = on => {
 
   on('command.run', { command: 'effort' }, async ($, e, next) => {
     const ran = await next(e)
+    if (await read($, disabled)) return ran
     const level = e.args.trim()
     if (EFFORTS.some(effort => effort.level === level)) await update($, live, () => ({ effort: level }))
     void $.ui.invalidate('ui.render')
@@ -64,13 +69,22 @@ export const register: Register = on => {
     return ran
   })
 
-  on('command.run', { command: 'quick-mode' }, async $ => {
+  on('command.run', { command: 'quick-mode' }, async ($, e) => {
+    const arg = e.args.trim()
+    if (arg === 'on' || arg === 'off') {
+      const isOff = arg === 'off'
+      await $.store.set(DISABLED_KEY, isOff)
+      await update($, disabled, () => isOff)
+      void $.ui.invalidate('ui.render')
+      return { text: isOff ? 'Quick Mode를 껐습니다. /quick-mode on 으로 다시 켭니다.' : 'Quick Mode를 켰습니다.' }
+    }
+    if (await read($, disabled)) return { text: 'Quick Mode가 꺼져 있습니다. /quick-mode on 으로 켭니다.' }
     const isHidden = await update($, hidden, h => !h)
     return { text: isHidden ? 'Quick Mode를 숨겼습니다.' : 'Quick Mode를 표시합니다.' }
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
-    if (e.props.hasSurvey || (await read($, hidden))) return next(e)
+    if (e.props.hasSurvey || (await read($, hidden)) || (await read($, disabled))) return next(e)
     const { Box, Button } = $.ui.resolve(e)
     const session = await $.session.model()
     const curModel = MODELS.find(m => session.includes(m.family))?.id ?? null

@@ -5,6 +5,7 @@ declare module 'claude-code' {
     'quick-mode': {
       live: Shaped<Live>
       hidden: boolean
+      disabled: boolean
     }
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "quick-mode",
   "version": "0.1.0",
-  "description": "입력창 위 버튼으로 모델과 effort를 바로 전환하는 mod. /quick-mode 로 숨기기/보이기.",
+  "description": "입력창 위 버튼으로 모델과 effort를 바로 전환하는 mod. /quick-mode 로 숨기기/보이기, /quick-mode on|off 로 켜기/끄기.",
   "author": {
     "name": "sports.game.solution"
   },
