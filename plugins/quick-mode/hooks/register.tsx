@@ -12,7 +12,8 @@ const EFFORTS: { level: ModelEffort; icon: string }[] = [
   { level: 'low', icon: '🔥' },
   { level: 'medium', icon: '🔥🔥' },
   { level: 'high', icon: '🔥🔥🔥' },
-  { level: 'max', icon: '🔥🔥🔥🔥' },
+  { level: 'xhigh', icon: '🔥🔥🔥🔥' },
+  { level: 'max', icon: '🔥🔥🔥🔥🔥' },
 ]
 const CHECK = '✓'
 

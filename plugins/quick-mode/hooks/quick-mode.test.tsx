@@ -82,7 +82,7 @@ test('a submitted /effort moves the highlight', async ($, on) => {
   expect((await ui.find({ key: 'low' }))?.props.variant).toBe('primary')
   await $.command.run(typed('effort', 'max'))
 
-  expect((await ui.find({ key: 'max' }))?.text).toBe('✓ 🔥🔥🔥🔥')
+  expect((await ui.find({ key: 'max' }))?.text).toBe('✓ 🔥🔥🔥🔥🔥')
   expect((await ui.find({ key: 'low' }))?.props.variant).toBeUndefined()
   await ui.unmount()
 })
