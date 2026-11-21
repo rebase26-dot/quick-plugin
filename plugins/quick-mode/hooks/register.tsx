@@ -75,32 +75,20 @@ export const register: Register = on => {
     const session = await $.session.model()
     const curModel = MODELS.find(m => session.includes(m.family))?.id ?? null
     const curEffort = (await read($, live)).effort
+    const group = (items: { key: string; icon: string; on: boolean; press: () => void }[]) => (
+      <Box flexDirection="row" alignItems="center" gap={0.25}>
+        {items.map(item => (
+          <Button key={item.key} variant={item.on ? 'primary' : undefined} onPress={item.press}>
+            {item.on ? `${CHECK} ` : ''}
+            {item.icon}
+          </Button>
+        ))}
+      </Box>
+    )
     return (
-      <Box flexDirection="row" alignItems="center" width="100%" justifyContent="space-between">
-        <Box flexDirection="row" alignItems="center" gap={1}>
-          {MODELS.map(m => (
-            <Button
-              key={m.id}
-              variant={curModel === m.id ? 'primary' : undefined}
-              onPress={() => run($, 'model', m.family)}
-            >
-              {curModel === m.id ? `${CHECK} ` : ''}
-              {m.icon}
-            </Button>
-          ))}
-        </Box>
-        <Box flexDirection="row" alignItems="center" gap={1}>
-          {EFFORTS.map(({ level, icon }) => (
-            <Button
-              key={level}
-              variant={curEffort === level ? 'primary' : undefined}
-              onPress={() => run($, 'effort', level)}
-            >
-              {curEffort === level ? `${CHECK} ` : ''}
-              {icon}
-            </Button>
-          ))}
-        </Box>
+      <Box flexDirection="row" alignItems="center" width="100%" justifyContent="space-between" paddingY={0.2}>
+        {group(MODELS.map(m => ({ key: m.id, icon: m.icon, on: curModel === m.id, press: () => run($, 'model', m.family) })))}
+        {group(EFFORTS.map(({ level, icon }) => ({ key: level, icon, on: curEffort === level, press: () => run($, 'effort', level) })))}
       </Box>
     )
   })
