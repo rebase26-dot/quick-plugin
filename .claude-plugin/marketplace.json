@@ -1,0 +1,14 @@
+{
+  "name": "quick-plugin",
+  "description": "모델·effort 빠른 전환 mod",
+  "owner": {
+    "name": "sports.game.solution"
+  },
+  "plugins": [
+    {
+      "name": "quick-mode",
+      "source": "./plugins/quick-mode",
+      "description": "입력창 위 버튼으로 모델과 effort를 바로 전환"
+    }
+  ]
+}
